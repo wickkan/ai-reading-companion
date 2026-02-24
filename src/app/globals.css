@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+/* ─── Custom theme tokens (Tailwind v4 CSS-first config) ─── */
+@theme {
+  --font-sans: var(--font-inter, ui-sans-serif, system-ui, sans-serif);
+  --font-serif: Georgia, "Times New Roman", serif;
+
+  /* Palette — warm and approachable */
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+}
+
+/* ─── Global base styles ─── */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth focus rings everywhere */
+:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
