@@ -5,14 +5,21 @@ import { Footer } from "@/components/layout/Footer";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { PASSING_SCORE } from "@/lib/constants";
+import type { ReadingSession } from "@/lib/types";
 
 // TODO: Replace mock data with real session results
 // (passed via URL params, server session, or localStorage on the client)
-const MOCK = {
+const MOCK: {
+  totalQuestions: number;
+  answeredQuestions: number;
+  averageScore: number;
+  difficulty: ReadingSession["difficulty"];
+  timeSpent: string;
+} = {
   totalQuestions: 8,
   answeredQuestions: 8,
   averageScore: 82,
-  difficulty: "intermediate" as const,
+  difficulty: "intermediate",
   timeSpent: "12 min",
 };
 
