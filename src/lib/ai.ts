@@ -8,7 +8,9 @@ import type { PassageChunk, Question, AnswerResult } from "./types";
 import { QUESTIONS_PER_CHUNK, PASSING_SCORE } from "./constants";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const MODEL = "claude-sonnet-4-6";
+// Use the exact dated ID — SDK 0.37.0 resolves the "claude-sonnet-4-6" alias to
+// the stale version "claude-sonnet-4-5-20250514". The current valid version is below.
+const MODEL = "claude-sonnet-4-5-20250929";
 
 /**
  * Strips markdown code fences that Claude sometimes wraps JSON in.
