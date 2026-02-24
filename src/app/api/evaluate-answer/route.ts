@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { Question, AnswerResult } from "@/lib/types";
+import type { Question } from "@/lib/types";
+import { evaluateAnswer } from "@/lib/ai";
 
 interface RequestBody {
   question: Question;
@@ -27,20 +28,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Replace with real Anthropic SDK call
-    // import { evaluateAnswer } from "@/lib/ai";
-    // const result = await evaluateAnswer(question, userAnswer);
-
-    // Stub response — remove once AI is wired up
-    const result: AnswerResult = {
-      questionId: question.id,
-      userAnswer,
-      isCorrect: false,
-      score: 0,
-      feedback:
-        "TODO: AI evaluation not yet implemented. Your answer has been recorded.",
-      correctAnswer: question.expectedAnswer,
-    };
+    const result = await evaluateAnswer(question, userAnswer);
 
     return NextResponse.json(result);
   } catch (error) {

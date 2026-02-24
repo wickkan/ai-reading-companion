@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { PassageChunk } from "@/lib/types";
+import { generateQuestions } from "@/lib/ai";
 
 interface RequestBody {
   chunk: PassageChunk;
@@ -27,28 +28,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Replace with real Anthropic SDK call
-    // import { generateQuestions } from "@/lib/ai";
-    // const questions = await generateQuestions(chunk, difficulty);
-
-    // Stub response — remove once AI is wired up
-    const questions = [
-      {
-        id: `q-${chunk.id}-1`,
-        chunkId: chunk.id,
-        questionText: `[TODO] Question 1 about section ${chunk.index + 1}`,
-        difficulty,
-        expectedAnswer: "[TODO] Expected answer placeholder",
-        hints: difficulty === "beginner" ? ["[TODO] Hint 1"] : undefined,
-      },
-      {
-        id: `q-${chunk.id}-2`,
-        chunkId: chunk.id,
-        questionText: `[TODO] Question 2 about section ${chunk.index + 1}`,
-        difficulty,
-        expectedAnswer: "[TODO] Expected answer placeholder",
-      },
-    ];
+    const questions = await generateQuestions(chunk, difficulty);
 
     return NextResponse.json({ questions });
   } catch (error) {
