@@ -28,7 +28,7 @@ export default function HomePage() {
         {/* Heading */}
         <div className="text-center mb-10">
           <h1 className="text-4xl font-bold text-gray-900 tracking-tight mb-3">
-            ReadingCompanion
+            Reading Companion
           </h1>
           <p className="text-gray-500 text-lg leading-relaxed">
             An AI-powered reading experience that helps you truly understand
@@ -39,7 +39,7 @@ export default function HomePage() {
         {/* Difficulty selector */}
         <div className="mb-8">
           <p className="text-sm font-medium text-gray-500 mb-3">
-            Choose your level
+            Choose Your Level
           </p>
           <div className="space-y-2">
             {DIFFICULTY_LEVELS.map((level) => (
@@ -69,7 +69,7 @@ export default function HomePage() {
           Start Reading
         </button>
         <p className="text-center text-xs text-gray-400 mt-4">
-          Takes about 10–15 minutes · No account needed
+          Takes About 10-15 Minutes · No Account Needed
         </p>
       </div>
     </main>

@@ -1,4 +1,4 @@
-export const APP_NAME = "ReadingCompanion";
+export const APP_NAME = "Reading Companion";
 
 export const QUESTIONS_PER_CHUNK = 2;
 

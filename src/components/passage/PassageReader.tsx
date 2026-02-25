@@ -1,16 +1,18 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PassageChunk as PassageChunkDisplay } from "./PassageChunk";
 import { PassageNav } from "./PassageNav";
+import { ChunkSummaryCard } from "./ChunkSummaryCard";
 import { QuestionCard } from "@/components/questions/QuestionCard";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Button } from "@/components/ui/Button";
 import { chunkPassage } from "@/lib/passage";
 import { useReadingSession } from "@/hooks/useReadingSession";
 import { useQuestions } from "@/hooks/useQuestions";
-import type { Question } from "@/lib/types";
+import { QUESTIONS_PER_CHUNK, PASSAGE_CHUNK_COUNT } from "@/lib/constants";
+import type { Question, CompletedSession } from "@/lib/types";
 
 /**
  * Main orchestrator for the reading experience.
@@ -19,9 +21,19 @@ import type { Question } from "@/lib/types";
 export function PassageReader() {
   const router = useRouter();
   const chunks = chunkPassage();
-  const { session, addAnswer, advanceChunk } = useReadingSession();
+  const { session, addAnswer, advanceChunk, setChunkIndex, completeSession } =
+    useReadingSession();
 
-  const currentChunk = chunks[session.currentChunkIndex];
+  // viewingIndex tracks which chunk is *displayed*; session.currentChunkIndex
+  // tracks the furthest chunk reached. They differ when the user navigates back.
+  const [viewingIndex, setViewingIndex] = useState(session.currentChunkIndex);
+
+  // Keep viewingIndex in sync when the session advances forward
+  useEffect(() => {
+    setViewingIndex(session.currentChunkIndex);
+  }, [session.currentChunkIndex]);
+
+  const currentChunk = chunks[viewingIndex];
   const { questions, isLoading, submitAnswer } = useQuestions(
     currentChunk,
     session.difficulty
@@ -33,6 +45,7 @@ export function PassageReader() {
   const allAnswered =
     questions.length > 0 && answeredForChunk.length >= questions.length;
   const isLastChunk = session.currentChunkIndex === chunks.length - 1;
+  const isViewingPast = viewingIndex < session.currentChunkIndex;
 
   const handleAnswer = useCallback(
     async (question: Question, answer: string) => {
@@ -44,13 +57,52 @@ export function PassageReader() {
     [submitAnswer, addAnswer]
   );
 
+  const handleNavigate = useCallback(
+    (index: number) => {
+      if (index <= session.currentChunkIndex) {
+        setViewingIndex(index);
+      }
+    },
+    [session.currentChunkIndex]
+  );
+
   const handleNext = () => {
+    if (isViewingPast) {
+      // Return to the active chunk
+      setViewingIndex(session.currentChunkIndex);
+      return;
+    }
     if (isLastChunk) {
+      if (session.isComplete) return; // guard against double-click
+      completeSession();
+      const payload: CompletedSession = {
+        answers: session.answers,
+        startedAt: session.startedAt.getTime(),
+        completedAt: Date.now(),
+        difficulty: session.difficulty,
+        totalQuestions: QUESTIONS_PER_CHUNK * PASSAGE_CHUNK_COUNT,
+      };
+      sessionStorage.setItem("readingSession", JSON.stringify(payload));
       router.push("/results");
     } else {
       advanceChunk();
     }
   };
+
+  const buttonLabel = isViewingPast
+    ? "Return To Current Section"
+    : isLastChunk
+      ? "Finish Reading"
+      : "Next Section →";
+
+  // Button is enabled when: returning to current section (always), or all answered on active chunk
+  const buttonEnabled = isViewingPast || allAnswered;
+
+  // Show summary card only on the active chunk (not when reviewing past chunks)
+  const showSummary =
+    allAnswered &&
+    !isViewingPast &&
+    (currentChunk.keyInsights?.length ?? 0) > 0;
 
   return (
     <div className="space-y-8">
@@ -69,9 +121,7 @@ export function PassageReader() {
             { length: session.currentChunkIndex },
             (_, i) => i
           )}
-          onNavigate={() => {
-            // TODO: Allow backward navigation through completed sections
-          }}
+          onNavigate={handleNavigate}
         />
       </div>
 
@@ -85,8 +135,9 @@ export function PassageReader() {
         </h2>
 
         {isLoading ? (
-          <div className="py-12 text-center">
-            <div className="text-gray-400 text-sm">Generating questions…</div>
+          <div className="py-12 flex flex-col items-center gap-3">
+            <div className="w-8 h-8 rounded-full border-2 border-gray-200 border-t-blue-500 animate-spin" />
+            <p className="text-gray-400 text-sm">Generating questions…</p>
           </div>
         ) : (
           questions.map((q) => (
@@ -97,25 +148,38 @@ export function PassageReader() {
               existingResult={session.answers.find(
                 (a) => a.questionId === q.id
               )}
+              chunkContent={currentChunk.content}
             />
           ))
         )}
       </div>
 
+      {/* Key takeaways — shown after answering all questions for this section */}
+      {showSummary && (
+        <ChunkSummaryCard
+          sectionLabel={`Section ${viewingIndex + 1} of ${chunks.length}`}
+          insights={currentChunk.keyInsights!}
+        />
+      )}
+
       {/* Navigation footer */}
       <div className="flex items-center justify-between pt-4">
         <p className="text-xs text-gray-400">
-          {allAnswered
-            ? "All questions answered — ready to continue."
-            : `${questions.length - answeredForChunk.length} question${questions.length - answeredForChunk.length !== 1 ? "s" : ""} remaining`}
+          {isViewingPast
+            ? `Reviewing section ${viewingIndex + 1}`
+            : allAnswered
+              ? "All questions answered — ready to continue."
+              : `${questions.length - answeredForChunk.length} Question${
+                  questions.length - answeredForChunk.length !== 1 ? "s" : ""
+                } Remaining`}
         </p>
         <Button
           variant="primary"
           size="lg"
           onClick={handleNext}
-          disabled={!allAnswered}
+          disabled={!buttonEnabled}
         >
-          {isLastChunk ? "Finish reading" : "Next section →"}
+          {buttonLabel}
         </Button>
       </div>
     </div>

@@ -3,15 +3,16 @@ import type { AnswerResult } from "@/lib/types";
 
 interface FeedbackPanelProps {
   result: AnswerResult;
+  chunkContent?: string;
 }
 
-export function FeedbackPanel({ result }: FeedbackPanelProps) {
+export function FeedbackPanel({ result, chunkContent }: FeedbackPanelProps) {
   const { isCorrect, score, feedback, correctAnswer, userAnswer } = result;
 
   const scoreVariant =
     score >= 80 ? "success" : score >= 50 ? "warning" : "error";
   const scoreLabel =
-    score >= 80 ? "Great answer!" : score >= 50 ? "Partially correct" : "Not quite";
+    score >= 80 ? "Great Answer!" : score >= 50 ? "Partially Correct" : "Not Quite";
 
   return (
     <div className="space-y-3">
@@ -23,7 +24,7 @@ export function FeedbackPanel({ result }: FeedbackPanelProps) {
 
       {/* User's answer */}
       <div className="p-3 bg-gray-50 rounded-xl">
-        <p className="text-xs text-gray-400 mb-1">Your answer</p>
+        <p className="text-xs text-gray-400 mb-1">Your Answer</p>
         <p className="text-sm text-gray-700 leading-relaxed">{userAnswer}</p>
       </div>
 
@@ -36,8 +37,18 @@ export function FeedbackPanel({ result }: FeedbackPanelProps) {
       {/* Model answer — shown when score is below threshold */}
       {!isCorrect && (
         <div className="p-3 bg-green-50 border border-green-100 rounded-xl">
-          <p className="text-xs font-medium text-green-600 mb-1">Model answer</p>
+          <p className="text-xs font-medium text-green-600 mb-1">Model Answer</p>
           <p className="text-sm text-green-900 leading-relaxed">{correctAnswer}</p>
+        </div>
+      )}
+
+      {/* Passage excerpt — helps the student connect the answer back to the source */}
+      {!isCorrect && chunkContent && (
+        <div className="p-3 bg-amber-50 border-l-4 border-amber-400 rounded-r-xl">
+          <p className="text-xs font-semibold text-amber-600 mb-1">From The Passage</p>
+          <blockquote className="text-sm text-amber-900 leading-relaxed italic">
+            &ldquo;{chunkContent}&rdquo;
+          </blockquote>
         </div>
       )}
     </div>

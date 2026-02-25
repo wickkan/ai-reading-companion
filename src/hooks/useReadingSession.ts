@@ -9,7 +9,7 @@ import { PASSAGE_CHUNK_COUNT } from "@/lib/constants";
  * Components should use this instead of useSession() directly.
  */
 export function useReadingSession() {
-  const { session, addAnswer, setChunkIndex } = useSession();
+  const { session, addAnswer, setChunkIndex, completeSession } = useSession();
 
   /**
    * Advances to the next passage chunk.
@@ -25,5 +25,5 @@ export function useReadingSession() {
     // stays in the component layer (not in a plain hook).
   }, [session.currentChunkIndex, setChunkIndex]);
 
-  return { session, addAnswer, advanceChunk };
+  return { session, addAnswer, advanceChunk, setChunkIndex, completeSession };
 }

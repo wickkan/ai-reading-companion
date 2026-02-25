@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
@@ -5,27 +8,72 @@ import { Footer } from "@/components/layout/Footer";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { PASSING_SCORE } from "@/lib/constants";
-import type { ReadingSession } from "@/lib/types";
-
-// TODO: Replace mock data with real session results
-// (passed via URL params, server session, or localStorage on the client)
-const MOCK: {
-  totalQuestions: number;
-  answeredQuestions: number;
-  averageScore: number;
-  difficulty: ReadingSession["difficulty"];
-  timeSpent: string;
-} = {
-  totalQuestions: 8,
-  answeredQuestions: 8,
-  averageScore: 82,
-  difficulty: "intermediate",
-  timeSpent: "12 min",
-};
+import type { CompletedSession } from "@/lib/types";
 
 function ResultsContent() {
-  const { totalQuestions, answeredQuestions, averageScore, difficulty, timeSpent } = MOCK;
+  const [data, setData] = useState<CompletedSession | null>(null);
+  const [missing, setMissing] = useState(false);
+
+  useEffect(() => {
+    const raw = sessionStorage.getItem("readingSession");
+    if (!raw) {
+      setMissing(true);
+      return;
+    }
+    try {
+      setData(JSON.parse(raw) as CompletedSession);
+    } catch {
+      setMissing(true);
+    }
+  }, []);
+
+  if (missing) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <Header />
+        <main className="flex-1 container mx-auto px-4 py-16 max-w-xl text-center">
+          <p className="text-4xl mb-4">◎</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-3">No session found</h1>
+          <p className="text-gray-500 mb-8">
+            It looks like you navigated here directly. Complete a reading session to see your results.
+          </p>
+          <Link
+            href="/"
+            className="inline-block px-6 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors text-sm"
+          >
+            Start Reading
+          </Link>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-400 text-sm">
+        Loading…
+      </div>
+    );
+  }
+
+  const answeredQuestions = data.answers.length;
+  const totalQuestions = data.totalQuestions;
+  const averageScore =
+    answeredQuestions > 0
+      ? Math.round(
+          data.answers.reduce((sum, a) => sum + a.score, 0) / answeredQuestions
+        )
+      : 0;
   const passed = averageScore >= PASSING_SCORE;
+
+  const ms = Math.max(0, data.completedAt - data.startedAt);
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  const timeSpent =
+    minutes > 0 ? `${minutes} min` : seconds > 0 ? `${seconds}s` : "< 1s";
+
+  const { difficulty } = data;
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -39,7 +87,7 @@ function ResultsContent() {
             {passed ? "✓" : "◎"}
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {passed ? "Well done!" : "Keep practising!"}
+            {passed ? "Well Done!" : "Keep Practising!"}
           </h1>
           <p className="text-gray-500">
             You answered {answeredQuestions} of {totalQuestions} questions in{" "}
@@ -91,13 +139,13 @@ function ResultsContent() {
             href="/"
             className="flex-1 text-center py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-medium hover:border-gray-300 hover:bg-gray-50 transition-colors text-sm"
           >
-            Back to home
+            Back To Home
           </Link>
           <Link
             href={`/read?difficulty=${difficulty}`}
             className="flex-1 text-center py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors text-sm"
           >
-            Try again
+            Try Again
           </Link>
         </div>
       </main>

@@ -12,6 +12,7 @@ interface SessionContextValue {
   session: ReadingSession;
   addAnswer: (result: AnswerResult) => void;
   setChunkIndex: (index: number) => void;
+  completeSession: () => void;
   resetSession: () => void;
 }
 
@@ -53,13 +54,20 @@ export function SessionProvider({ children, difficulty }: SessionProviderProps) 
     setSession((prev) => ({ ...prev, currentChunkIndex: index }));
   };
 
+  const completeSession = () => {
+    setSession((prev) => {
+      if (prev.isComplete) return prev;
+      return { ...prev, isComplete: true, completedAt: new Date() };
+    });
+  };
+
   const resetSession = () => {
     setSession(createInitialSession(difficulty));
   };
 
   return (
     <SessionContext.Provider
-      value={{ session, addAnswer, setChunkIndex, resetSession }}
+      value={{ session, addAnswer, setChunkIndex, completeSession, resetSession }}
     >
       {children}
     </SessionContext.Provider>

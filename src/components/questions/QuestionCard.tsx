@@ -11,6 +11,7 @@ interface QuestionCardProps {
   question: Question;
   onSubmit: (answer: string) => Promise<void>;
   existingResult?: AnswerResult;
+  chunkContent?: string;
 }
 
 const difficultyBadge = {
@@ -23,6 +24,7 @@ export function QuestionCard({
   question,
   onSubmit,
   existingResult,
+  chunkContent,
 }: QuestionCardProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -44,13 +46,13 @@ export function QuestionCard({
             {question.questionText}
           </p>
           <Badge variant={difficultyBadge[question.difficulty]}>
-            {question.difficulty}
+            {question.difficulty.charAt(0).toUpperCase() + question.difficulty.slice(1)}
           </Badge>
         </div>
 
         {/* Answer area or feedback */}
         {existingResult ? (
-          <FeedbackPanel result={existingResult} />
+          <FeedbackPanel result={existingResult} chunkContent={chunkContent} />
         ) : (
           <AnswerInput
             onSubmit={handleSubmit}

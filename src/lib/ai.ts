@@ -6,8 +6,13 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { PassageChunk, Question, AnswerResult } from "./types";
 import { QUESTIONS_PER_CHUNK, PASSING_SCORE } from "./constants";
+import { PASSAGE_CHUNKS } from "./passage";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+// Server-side cache: difficulty → { [chunkId]: Question[] }
+// Persists for the lifetime of the Node process — zero generation cost after first request per difficulty.
+const questionCache = new Map<string, Record<string, Question[]>>();
 // Use the exact dated ID — SDK 0.37.0 resolves the "claude-sonnet-4-6" alias to
 // the stale version "claude-sonnet-4-5-20250514". The current valid version is below.
 const MODEL = "claude-sonnet-4-5-20250929";
@@ -37,17 +42,32 @@ interface RawEvaluation {
 
 // ────────────────────────────────────────────────────────────────────────────
 
-/**
- * Generates comprehension questions for a single passage chunk.
- *
- * @param chunk      - The passage section to generate questions about
- * @param difficulty - The session difficulty level
- * @returns          Array of Question objects, length = QUESTIONS_PER_CHUNK
- */
-export async function generateQuestions(
-  chunk: PassageChunk,
+/** Normalises raw AI output to our Question type. IDs are assigned here, not by the AI. */
+function normalizeQuestions(
+  chunkId: string,
+  raw: RawQuestion[],
   difficulty: string
-): Promise<Question[]> {
+): Question[] {
+  return raw.slice(0, QUESTIONS_PER_CHUNK).map((q, i) => ({
+    id: `q-${chunkId}-${i + 1}`,
+    chunkId,
+    questionText: q.questionText,
+    difficulty: difficulty as Question["difficulty"],
+    expectedAnswer: q.expectedAnswer,
+    hints: q.hints && q.hints.length > 0 ? q.hints : undefined,
+  }));
+}
+
+/**
+ * Generates questions for ALL passage chunks in a single API call and caches
+ * the result by difficulty. Subsequent calls for the same difficulty are free.
+ */
+async function generateAllQuestions(
+  difficulty: string
+): Promise<Record<string, Question[]>> {
+  const cached = questionCache.get(difficulty);
+  if (cached) return cached;
+
   const difficultyGuide =
     {
       beginner:
@@ -58,28 +78,33 @@ export async function generateQuestions(
         "Ask for inference, critical analysis, or evaluation that requires reading between the lines. No hints needed.",
     }[difficulty] ?? "Ask about key ideas in the passage. No hints needed.";
 
+  const sections = PASSAGE_CHUNKS.map(
+    (c) => `[${c.id}]:\n"""\n${c.content}\n"""`
+  ).join("\n\n");
+
   const response = await client.messages.create({
     model: MODEL,
-    max_tokens: 1024,
+    max_tokens: 2048,
     system:
       "You are a reading comprehension expert designing questions for English learners. " +
       "Your questions must test genuine understanding of the text, not surface-level recall. " +
-      "Return ONLY a valid JSON array — no explanation, no markdown, no prose.",
+      "Return ONLY a valid JSON object — no explanation, no markdown, no prose.",
     messages: [
       {
         role: "user",
         content:
-          `Passage excerpt:\n"""\n${chunk.content}\n"""\n\n` +
-          `Generate exactly ${QUESTIONS_PER_CHUNK} comprehension questions at ${difficulty} difficulty.\n\n` +
+          `For each passage section below, generate exactly ${QUESTIONS_PER_CHUNK} comprehension questions at ${difficulty} difficulty.\n\n` +
           `Difficulty guideline: ${difficultyGuide}\n\n` +
-          `Return a JSON array matching this schema exactly:\n` +
-          `[\n` +
-          `  {\n` +
-          `    "questionText": "string",\n` +
-          `    "expectedAnswer": "A 1–2 sentence model answer",\n` +
-          `    "hints": ["hint1", "hint2"]  // include only for beginner; omit the key entirely for other levels\n` +
-          `  }\n` +
-          `]`,
+          `Passage sections:\n\n${sections}\n\n` +
+          `Return a single JSON object where each key is the section ID and each value is an array of question objects:\n` +
+          `{\n` +
+          `  "chunk-1": [\n` +
+          `    { "questionText": "string", "expectedAnswer": "A 1–2 sentence model answer", "hints": ["hint1"] }\n` +
+          `  ],\n` +
+          `  "chunk-2": [ ... ],\n` +
+          `  ...\n` +
+          `}\n` +
+          `Omit the "hints" key entirely for non-beginner difficulty.`,
       },
     ],
   });
@@ -89,24 +114,43 @@ export async function generateQuestions(
     .map((b) => b.text)
     .join("");
 
-  let parsed: RawQuestion[];
+  let parsed: Record<string, RawQuestion[]>;
   try {
-    parsed = JSON.parse(extractJSON(raw)) as RawQuestion[];
+    parsed = JSON.parse(extractJSON(raw)) as Record<string, RawQuestion[]>;
   } catch {
     throw new Error(
-      `generateQuestions: failed to parse AI response as JSON.\nRaw: ${raw}`
+      `generateAllQuestions: failed to parse AI response as JSON.\nRaw: ${raw}`
     );
   }
 
-  // Normalise to our Question type — IDs are assigned here, not by the AI
-  return parsed.slice(0, QUESTIONS_PER_CHUNK).map((q, i) => ({
-    id: `q-${chunk.id}-${i + 1}`,
-    chunkId: chunk.id,
-    questionText: q.questionText,
-    difficulty: difficulty as Question["difficulty"],
-    expectedAnswer: q.expectedAnswer,
-    hints: q.hints && q.hints.length > 0 ? q.hints : undefined,
-  }));
+  const result: Record<string, Question[]> = {};
+  for (const chunk of PASSAGE_CHUNKS) {
+    result[chunk.id] = normalizeQuestions(
+      chunk.id,
+      parsed[chunk.id] ?? [],
+      difficulty
+    );
+  }
+
+  questionCache.set(difficulty, result);
+  return result;
+}
+
+/**
+ * Returns questions for a single passage chunk.
+ * Internally uses generateAllQuestions — the first call for a difficulty
+ * generates all chunks at once; subsequent calls are instant cache hits.
+ *
+ * @param chunk      - The passage section to generate questions about
+ * @param difficulty - The session difficulty level
+ * @returns          Array of Question objects, length = QUESTIONS_PER_CHUNK
+ */
+export async function generateQuestions(
+  chunk: PassageChunk,
+  difficulty: string
+): Promise<Question[]> {
+  const all = await generateAllQuestions(difficulty);
+  return all[chunk.id] ?? [];
 }
 
 // ────────────────────────────────────────────────────────────────────────────
