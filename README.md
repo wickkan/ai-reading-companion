@@ -1,4 +1,4 @@
-# edaccel-reading-companion
+# EdAccelerator Reading Companion
 
 An AI-powered reading comprehension web app that guides learners through passages with adaptive questions and personalised feedback.
 
