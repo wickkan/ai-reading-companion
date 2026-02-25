@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { AnswerInput } from "./AnswerInput";
 import { FeedbackPanel } from "./FeedbackPanel";
 import type { Question, AnswerResult } from "@/lib/types";
@@ -14,11 +13,6 @@ interface QuestionCardProps {
   chunkContent?: string;
 }
 
-const difficultyBadge = {
-  beginner: "success",
-  intermediate: "info",
-  advanced: "warning",
-} as const;
 
 export function QuestionCard({
   question,
@@ -41,13 +35,10 @@ export function QuestionCard({
     <Card>
       <div className="space-y-4">
         {/* Question header */}
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
           <p className="text-gray-900 font-medium leading-relaxed text-sm flex-1">
             {question.questionText}
           </p>
-          <Badge variant={difficultyBadge[question.difficulty]}>
-            {question.difficulty.charAt(0).toUpperCase() + question.difficulty.slice(1)}
-          </Badge>
         </div>
 
         {/* Answer area or feedback */}

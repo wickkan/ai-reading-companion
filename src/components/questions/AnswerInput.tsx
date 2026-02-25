@@ -73,7 +73,7 @@ export function AnswerInput({ onSubmit, isSubmitting, hints }: AnswerInputProps)
         onClick={handleSubmit}
         disabled={!answer.trim() || isSubmitting}
       >
-        {isSubmitting ? "Evaluating…" : "Submit Answer"}
+        {isSubmitting ? "Thinking about your answer…" : "Submit Answer"}
       </Button>
     </div>
   );

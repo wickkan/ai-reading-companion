@@ -16,6 +16,7 @@ export interface Question {
 
 export interface AnswerResult {
   questionId: string;
+  questionText?: string;
   userAnswer: string;
   isCorrect: boolean;
   score: number; // 0–100

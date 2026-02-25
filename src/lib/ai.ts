@@ -173,6 +173,7 @@ export async function evaluateAnswer(
       "You are a warm, encouraging reading comprehension tutor. " +
       "You give partial credit for partially correct answers. " +
       "Your feedback is always constructive — acknowledge what the student got right before pointing to what is missing. " +
+      "Use British English spelling throughout (e.g. organised, behaviour, recognised, colour, practise). " +
       "Return ONLY a valid JSON object — no explanation, no markdown, no prose.",
     messages: [
       {
