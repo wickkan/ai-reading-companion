@@ -37,7 +37,7 @@ export function PassageNav({
                 ? "w-6 bg-blue-600"
                 : isCompleted
                   ? "w-2 bg-blue-300 hover:bg-blue-400 cursor-pointer"
-                  : "w-2 bg-gray-200 opacity-40 cursor-not-allowed"
+                  : "w-2 bg-gray-200 opacity-40 cursor-not-allowed pointer-events-none"
             }`}
           />
         );
