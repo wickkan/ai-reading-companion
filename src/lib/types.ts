@@ -2,6 +2,7 @@ export interface PassageChunk {
   id: string;
   content: string;
   index: number;
+  keyInsights?: string[];
 }
 
 export interface Question {
@@ -15,6 +16,7 @@ export interface Question {
 
 export interface AnswerResult {
   questionId: string;
+  questionText?: string;
   userAnswer: string;
   isCorrect: boolean;
   score: number; // 0–100
@@ -26,6 +28,15 @@ export interface ReadingSession {
   currentChunkIndex: number;
   answers: AnswerResult[];
   startedAt: Date;
+  completedAt?: Date;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   isComplete: boolean;
+}
+
+export interface CompletedSession {
+  answers: AnswerResult[];
+  startedAt: number;
+  completedAt: number;
+  difficulty: ReadingSession['difficulty'];
+  totalQuestions: number;
 }

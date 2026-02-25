@@ -1,10 +1,12 @@
-export const APP_NAME = "ReadingCompanion";
+export const APP_NAME = "Reading Companion";
 
 export const QUESTIONS_PER_CHUNK = 2;
 
 export const PASSING_SCORE = 70;
 
 export const PASSAGE_CHUNK_COUNT = 4;
+
+export const SYNTHESIS_QUESTION_COUNT = 1;
 
 export const DIFFICULTY_LEVELS = [
   {

@@ -16,7 +16,7 @@ async function ReadPageContent({ searchParams }: ReadPageProps) {
 
   return (
     <SessionProvider difficulty={difficulty}>
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col bg-transparent">
         <Header showProgress />
         <main className="flex-1 container mx-auto px-4 py-10 max-w-3xl">
           <PassageReader />

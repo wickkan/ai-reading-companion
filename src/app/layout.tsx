@@ -8,7 +8,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ReadingCompanion | EdAccelerator",
+  title: "Reading Companion | EdAccelerator",
   description:
     "An AI-powered reading comprehension tool that helps you truly understand what you read through guided questions and personalised feedback.",
 };
@@ -20,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-gray-50 text-gray-900 antialiased">
+      <body className="min-h-screen text-gray-900 antialiased">
         {children}
       </body>
     </html>

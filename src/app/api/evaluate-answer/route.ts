@@ -8,8 +8,14 @@ interface RequestBody {
 }
 
 export async function POST(request: NextRequest) {
+  let body: Partial<RequestBody>;
   try {
-    const body = (await request.json()) as Partial<RequestBody>;
+    body = (await request.json()) as Partial<RequestBody>;
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  try {
 
     // Input validation
     if (!body.question || typeof body.userAnswer !== "string") {

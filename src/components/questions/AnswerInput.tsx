@@ -21,7 +21,8 @@ export function AnswerInput({ onSubmit, isSubmitting, hints }: AnswerInputProps)
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
       handleSubmit();
     }
   };
@@ -32,7 +33,7 @@ export function AnswerInput({ onSubmit, isSubmitting, hints }: AnswerInputProps)
         value={answer}
         onChange={(e) => setAnswer(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Write your answer here… (⌘ + Enter to submit)"
+        placeholder="Write your answer here… (Shift + Enter for new line)"
         rows={3}
         className="w-full px-3 py-2.5 text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400"
       />
@@ -60,7 +61,7 @@ export function AnswerInput({ onSubmit, isSubmitting, hints }: AnswerInputProps)
               onClick={() => setShowHint(true)}
               className="text-xs text-amber-500 hover:text-amber-600 font-medium"
             >
-              💡 Show hint
+              💡 Show Hint
             </button>
           )}
         </div>
@@ -72,7 +73,7 @@ export function AnswerInput({ onSubmit, isSubmitting, hints }: AnswerInputProps)
         onClick={handleSubmit}
         disabled={!answer.trim() || isSubmitting}
       >
-        {isSubmitting ? "Evaluating…" : "Submit answer"}
+        {isSubmitting ? "Thinking about your answer…" : "Submit Answer"}
       </Button>
     </div>
   );
