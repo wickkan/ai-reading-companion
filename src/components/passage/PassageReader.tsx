@@ -40,7 +40,7 @@ const DIFFICULTY_CONTEXT: Record<string, { icon: string; text: string }> = {
 export function PassageReader() {
   const router = useRouter();
   const chunks = chunkPassage();
-  const { session, addAnswer, advanceChunk, setChunkIndex, completeSession } =
+  const { session, addAnswer, advanceChunk, completeSession } =
     useReadingSession();
 
   // viewingIndex tracks which chunk is *displayed*; session.currentChunkIndex
