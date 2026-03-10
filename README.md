@@ -2,6 +2,14 @@
 
 An AI-powered reading comprehension tool that guides learners through a passage with personalised questions and written feedback.
 
+**Live demo:** [ai-reading-companion-rho.vercel.app](https://ai-reading-companion-rho.vercel.app)
+
+## Screenshots
+
+![Home — difficulty selection](screenshots/home.png)
+![Reading session — passage view](screenshots/reading.png)
+![Reading session — comprehension questions](screenshots/questions.png)
+
 --
 
 ## Overview
