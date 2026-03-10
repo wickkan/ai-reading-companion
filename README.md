@@ -126,7 +126,7 @@ Given more time, the following would significantly strengthen the product:
 
 **Automated tests.** The project has no test suite. Unit tests for `ai.ts` (mocking the Anthropic SDK), integration tests for the API routes, and end-to-end tests with Playwright would give confidence when the passage or prompt changes.
 
-**Rate limiting.** The API routes currently have no rate limiting. Adding per-IP limits via Vercel's edge middleware would prevent abuse of the Anthropic API key.
+**Rate limiting.** The API routes currently have no rate limiting. The live demo is a personal project running on a shared Anthropic API key — if you hit errors, it is likely due to API rate limits. Adding per-IP limits via Vercel's edge middleware would prevent abuse; to run the app reliably, clone the repo and supply your own `ANTHROPIC_API_KEY`.
 
 ---
 
