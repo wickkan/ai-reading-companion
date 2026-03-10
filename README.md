@@ -10,8 +10,6 @@ An AI-powered reading comprehension tool that guides learners through a passage 
 ![Reading session — passage view](screenshots/reading.png)
 ![Reading session — comprehension questions](screenshots/questions.png)
 
---
-
 ## Overview
 
 Reading Companion targets a common gap in digital learning: students can click through multiple choice questions without ever reading the text. This app forces active engagement by requiring text responses that the AI then scores and critiques.
