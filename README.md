@@ -118,7 +118,7 @@ The synthesis question is a static `Question` object built from `SYNTHESIS_QUEST
 
 ## Improvements
 
-Given more time, the following would significantly strengthen the product:
+The following would strengthen the product in future iterations:
 
 **Streaming AI responses.** Currently the UI blocks until the entire evaluation JSON is ready (~3–4 seconds). Streaming the feedback text character-by-character would feel more like a tutor thinking out loud and reduce perceived wait time.
 
@@ -133,21 +133,3 @@ Given more time, the following would significantly strengthen the product:
 **Automated tests.** The project has no test suite. Unit tests for `ai.ts` (mocking the Anthropic SDK), integration tests for the API routes, and end-to-end tests with Playwright would give confidence when the passage or prompt changes.
 
 **Rate limiting.** The API routes currently have no rate limiting. The live demo is a personal project running on a shared Anthropic API key — if you hit errors, it is likely due to API rate limits. Adding per-IP limits via Vercel's edge middleware would prevent abuse; to run the app reliably, clone the repo and supply your own `ANTHROPIC_API_KEY`.
-
----
-
-## Time Spent
-
-~10 hours total over two days
-
-| Phase                                                                                    | Time     |
-| ---------------------------------------------------------------------------------------- | -------- |
-| Architecture & scaffolding (routing, context, types, session state)                      | 1.5h     |
-| Passage content + AI prompt engineering (question generation, evaluation, scoring bands) | 1.5h     |
-| Core reading flow (PassageReader, QuestionCard, AnswerInput, FeedbackPanel)              | 2.5h     |
-| API routes + bulk question cache                                                         | 1h       |
-| Results page (score derivation, answer review, level-up action)                          | 1h       |
-| Polish (synthesis question, backward nav, skeleton loader, UX copy)                      | 1.5h     |
-| Edge case testing + bug fixes                                                            | 0.5h     |
-| Documentation                                                                            | 0.5h     |
-| **Total**                                                                                | **~10h** |
