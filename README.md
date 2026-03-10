@@ -1,8 +1,6 @@
-# EdAccelerator Reading Companion
+# AI Reading Companion
 
 An AI-powered reading comprehension tool that guides learners through a passage with personalised questions and written feedback.
-
-**Live demo:** [edaccel-reading-companion.vercel.app](https://edaccel-reading-companion.vercel.app)
 
 --
 
