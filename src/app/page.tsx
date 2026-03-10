@@ -19,12 +19,6 @@ export default function HomePage() {
     <main className="min-h-screen flex items-center justify-center px-4 py-16">
       <div className="max-w-lg w-full">
         {/* Badge */}
-        <div className="flex justify-center mb-8">
-          <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-600 text-xs font-semibold px-3 py-1 rounded-full tracking-wide uppercase">
-            ✦ EdAccelerator
-          </span>
-        </div>
-
         {/* Heading */}
         <div className="text-center mb-10">
           <h1 className="text-4xl font-bold text-gray-900 tracking-tight mb-3">

@@ -4,7 +4,7 @@ An AI-powered reading comprehension tool that guides learners through a passage 
 
 **Live demo:** [edaccel-reading-companion.vercel.app](https://edaccel-reading-companion.vercel.app)
 
----
+--
 
 ## Overview
 
